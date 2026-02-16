@@ -66,12 +66,27 @@ jobs:
             lttoolbox \
             cg3 \
             vislcg3 \
+            libcg3-dev \
             autoconf \
             automake \
             libtool \
             pkg-config \
             git \
             make
+
+      - name: Ensure cg3 pkg-config is discoverable
+        run: |
+          set -e
+          if pkg-config --exists cg3; then
+            echo "cg3 pkg-config is available."
+            exit 0
+          fi
+          echo "cg3 pkg-config not found; searching for cg3.pc"
+          CG3_PC=$(find /usr -name cg3.pc 2>/dev/null | head -n 1 || true)
+          if [ -n "$CG3_PC" ]; then
+            echo "Found cg3.pc at $CG3_PC"
+            echo "PKG_CONFIG_PATH=$(dirname "$CG3_PC"):$PKG_CONFIG_PATH" >> $GITHUB_ENV
+          fi
 
       - name: Compile FSTs
         run: |
