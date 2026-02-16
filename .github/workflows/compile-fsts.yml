@@ -1,0 +1,128 @@
+name: Compile Apertium FSTs
+
+on:
+  workflow_dispatch:
+    inputs:
+      languages:
+        description: "Comma-separated language codes (empty = all from languages.json)"
+        required: false
+        default: ""
+      release_tag:
+        description: "GitHub Release tag to create (e.g., v1.0.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build language matrix
+        id: set-matrix
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          cfg = json.loads(Path("languages.json").read_text())
+          all_langs = [entry["code"] for entry in cfg.get("languages", [])]
+          raw = os.environ.get("LANGS", "").strip()
+          if raw:
+            selected = [x.strip() for x in raw.split(",") if x.strip()]
+          else:
+            selected = all_langs
+          matrix = {"lang": selected}
+          print(f"Selected: {selected}")
+          print("matrix=" + json.dumps(matrix))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+            fh.write("matrix=" + json.dumps(matrix) + "\\n")
+          PY
+        env:
+          LANGS: ${{ inputs.languages }}
+
+  compile:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            hfst \
+            lttoolbox \
+            cg3 \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config \
+            git \
+            make
+
+      - name: Compile FSTs
+        run: |
+          python scripts/compile_apertium.py --config languages.json --langs "${{ matrix.lang }}" --out dist --work build
+
+      - name: Package outputs
+        run: |
+          mkdir -p release
+          for langdir in dist/*; do
+            lang=$(basename "$langdir")
+            zip -r "release/${lang}.apertium.fst.zip" "$langdir"
+            sha256sum "release/${lang}.apertium.fst.zip" > "release/${lang}.apertium.fst.zip.sha256"
+          done
+
+      - name: Record release tag
+        run: |
+          echo "${{ inputs.release_tag }}" > .release_tag
+
+      - name: Create catalog snippet
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          release_tag = Path(".release_tag").read_text().strip()
+          cfg = json.loads(Path("languages.json").read_text())
+          info = {entry["code"]: entry for entry in cfg.get("languages", [])}
+          for zip_path in Path("release").glob("*.apertium.fst.zip"):
+              lang = zip_path.name.split(".")[0]
+              sha_path = zip_path.with_suffix(zip_path.suffix + ".sha256")
+              sha = sha_path.read_text().split()[0]
+              url = f"https://github.com/turkic-nlp/apertium-data/releases/download/{release_tag}/{zip_path.name}"
+              entry = info.get(lang, {})
+              snippet = {
+                  "lang": lang,
+                  "apertium": {
+                      "type": "apertium_fst",
+                      "url": url,
+                      "sha256": sha,
+                      "license": "GPL-3.0-or-later",
+                      "source": entry.get("repo"),
+                      "script": entry.get("script"),
+                      "quality": entry.get("quality"),
+                  },
+              }
+              out = Path(f"release/{lang}.catalog.json")
+              out.write_text(json.dumps(snippet, indent=2) + "\\n")
+          PY
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.release_tag }}
+          files: |
+            release/*.zip
+            release/*.sha256
+            release/*.catalog.json

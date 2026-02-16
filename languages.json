@@ -1,0 +1,24 @@
+{
+  "languages": [
+    {"code": "tur", "name": "Turkish", "repo": "https://github.com/apertium/apertium-tur", "script": "Latn", "quality": "production"},
+    {"code": "kaz", "name": "Kazakh", "repo": "https://github.com/apertium/apertium-kaz", "script": "Cyrl", "quality": "production"},
+    {"code": "tat", "name": "Tatar", "repo": "https://github.com/apertium/apertium-tat", "script": "Cyrl", "quality": "production"},
+    {"code": "aze", "name": "Azerbaijani", "repo": "https://github.com/apertium/apertium-aze", "script": "Latn", "quality": "stable"},
+    {"code": "kir", "name": "Kyrgyz", "repo": "https://github.com/apertium/apertium-kir", "script": "Cyrl", "quality": "stable"},
+    {"code": "uzb", "name": "Uzbek", "repo": "https://github.com/apertium/apertium-uzb", "script": "Latn", "quality": "stable"},
+    {"code": "tuk", "name": "Turkmen", "repo": "https://github.com/apertium/apertium-tuk", "script": "Latn", "quality": "beta"},
+    {"code": "bak", "name": "Bashkir", "repo": "https://github.com/apertium/apertium-bak", "script": "Cyrl", "quality": "beta"},
+    {"code": "uig", "name": "Uyghur", "repo": "https://github.com/apertium/apertium-uig", "script": "Arab", "quality": "beta"},
+    {"code": "crh", "name": "Crimean Tatar", "repo": "https://github.com/apertium/apertium-crh", "script": "Latn", "quality": "beta"},
+    {"code": "chv", "name": "Chuvash", "repo": "https://github.com/apertium/apertium-chv", "script": "Cyrl", "quality": "beta"},
+    {"code": "gag", "name": "Gagauz", "repo": "https://github.com/apertium/apertium-gag", "script": "Latn", "quality": "prototype"},
+    {"code": "sah", "name": "Sakha (Yakut)", "repo": "https://github.com/apertium/apertium-sah", "script": "Cyrl", "quality": "prototype"},
+    {"code": "kaa", "name": "Karakalpak", "repo": "https://github.com/apertium/apertium-kaa", "script": "Latn", "quality": "prototype"},
+    {"code": "nog", "name": "Nogai", "repo": "https://github.com/apertium/apertium-nog", "script": "Cyrl", "quality": "prototype"},
+    {"code": "kum", "name": "Kumyk", "repo": "https://github.com/apertium/apertium-kum", "script": "Cyrl", "quality": "prototype"},
+    {"code": "krc", "name": "Karachay-Balkar", "repo": "https://github.com/apertium/apertium-krc", "script": "Cyrl", "quality": "prototype"},
+    {"code": "alt", "name": "Altai", "repo": "https://github.com/apertium/apertium-alt", "script": "Cyrl", "quality": "prototype"},
+    {"code": "tyv", "name": "Tuvan", "repo": "https://github.com/apertium/apertium-tyv", "script": "Cyrl", "quality": "prototype"},
+    {"code": "kjh", "name": "Khakas", "repo": "https://github.com/apertium/apertium-kjh", "script": "Cyrl", "quality": "prototype"}
+  ]
+}
