@@ -63,6 +63,7 @@ jobs:
             apertium \
             apertium-dev \
             hfst \
+            libhfst-dev \
             lttoolbox \
             cg3 \
             vislcg3 \
@@ -86,6 +87,20 @@ jobs:
           if [ -n "$CG3_PC" ]; then
             echo "Found cg3.pc at $CG3_PC"
             echo "PKG_CONFIG_PATH=$(dirname "$CG3_PC"):$PKG_CONFIG_PATH" >> $GITHUB_ENV
+          fi
+
+      - name: Ensure hfst pkg-config is discoverable
+        run: |
+          set -e
+          if pkg-config --exists hfst; then
+            echo "hfst pkg-config is available."
+            exit 0
+          fi
+          echo "hfst pkg-config not found; searching for hfst.pc"
+          HFST_PC=$(find /usr -name hfst.pc 2>/dev/null | head -n 1 || true)
+          if [ -n "$HFST_PC" ]; then
+            echo "Found hfst.pc at $HFST_PC"
+            echo "PKG_CONFIG_PATH=$(dirname "$HFST_PC"):$PKG_CONFIG_PATH" >> $GITHUB_ENV
           fi
 
       - name: Compile FSTs
