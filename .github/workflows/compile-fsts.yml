@@ -65,6 +65,7 @@ jobs:
             hfst \
             lttoolbox \
             cg3 \
+            vislcg3 \
             autoconf \
             automake \
             libtool \
